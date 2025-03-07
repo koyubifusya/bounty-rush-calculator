@@ -12,11 +12,7 @@
       "sizes": "512x512",
       "type": "image/jpeg"
     },
-    {
-      "src": "/images/favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
-    }
+
   ],
   "start_url": "/",
   "display": "standalone",
