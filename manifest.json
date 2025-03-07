@@ -3,12 +3,12 @@
   "name": "かけら計算",
   "icons": [
     {
-      "src": "images/new_icon.png.JPG",
+      "src": "/images/new_icon.png.JPG",
       "sizes": "192x192",
       "type": "image/jpeg"
     },
     {
-      "src": "images/new_icon.png.JPG",
+      "src": "/images/new_icon.png.JPG",
       "sizes": "512x512",
       "type": "image/jpeg"
     },
