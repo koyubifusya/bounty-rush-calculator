@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>     
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1453866127519257"
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1453866127519257"
      crossorigin="anonymous"></script>
-  <meta name="google-adsense-account" content="ca-pub-1453866127519257">
+<meta name="google-adsense-account" content="ca-pub-1453866127519257">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-V0P18WFX75"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V0P18WFX75"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-V0P18WFX75');
-  </script>  
-
+  gtag('config', 'G-V0P18WFX75');
+</script>  
   <link rel="manifest" href="manifest.json">
+<!-- iOS用の設定 -->
+<link rel="apple-touch-icon" sizes="180x180" href="images/new_icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="かけら計算">
 
-  <!-- iOS用の設定 -->
-  <link rel="apple-touch-icon" sizes="180x180" href="images/new_icon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="かけら計算">
-
+  
   <meta charset="UTF-8">
+  <!-- ユーザー拡大を無効にする（※アクセシビリティに配慮が必要です） -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>バウンティラッシュかけら計算</title>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,6 +34,7 @@
       background-color: #f0f8ff;
       color: #333;
     }
+    /* 入力フィールドやボタンのフォントサイズを16px以上に指定 */
     input, select, textarea, button {
       font-size: 16px;
     }
@@ -70,13 +69,6 @@
       background-color: #e6f2ff;
       padding: 15px;
       border-radius: 4px;
-    }
-    #money {
-      margin-top: 10px;
-      text-align: center;
-      font-weight: bold;
-      color: #008000;
-      font-size: 1.1em;
     }
     #notice {
       background-color: #e6f2ff;
@@ -121,103 +113,295 @@
   </style>
 </head>
 <body>
-  <h1>星4かけら計算サイト</h1>
+  <!-- 計算フォーム画面 -->
+  <div id="calculatorScreen">
+    <h1>バウンティラッシュかけら計算</h1>
 
-  <div class="form-group">
-    <label for="current">現在のかけら数:</label>
-    <input type="number" id="current" min="0" max="240">
+    <div class="form-group">
+      <label for="characterName">キャラクター名 (任意)：</label>
+      <input type="text" id="characterName" placeholder="">
+    </div>
+
+    <div class="form-group">
+      <label for="startDate">開始日：</label>
+      <input type="date" id="startDate">
+    </div>
+
+    <div class="form-group">
+      <label for="targetShards">目標かけら数：</label>
+      <input type="number" id="targetShards" min="1">
+    </div>
+
+    <div class="form-group">
+      <label for="characterType">キャラクターの種類：</label>
+      <select id="characterType">
+        <option value="ultra">超フェス</option>
+        <option value="limited">フェス限</option>
+        <option value="regular">恒常</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="limitedOptions" style="display:none;">
+      <label for="purchaseRush">得ラッシュ30を購入しますか？</label>
+      <select id="purchaseRush">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="specialTraining">特訓をしますか？</label>
+      <select id="specialTraining">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="trainingOptions" style="display:none;">
+      <label for="allianceCheer">同盟エールが使えますか？</label>
+      <select id="allianceCheer">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="trainingPaid" style="display:none;">
+      <label for="paidTraining">特訓に課金しますか？</label>
+      <select id="paidTraining">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="leagueRewards">リーグ報酬のかけらを使いますか？</label>
+      <select id="leagueRewards">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="leagueOptions" style="display:none;">
+      <label for="leagueRank">シーズン最終日のランク：</label>
+      <select id="leagueRank">
+        <option value="SS">SS</option>
+        <option value="S+">S+</option>
+        <option value="S">S</option>
+        <option value="S-">S-</option>
+        <option value="A+">A+</option>
+        <option value="A">A</option>
+        <option value="A-">A-</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="challengeBattle">チャレバトでもらえるかけらを使いますか？</label>
+      <select id="challengeBattle">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="challengeOptions" style="display:none;">
+      <label for="paidChallenge">チャレバトに課金しますか？</label>
+      <select id="paidChallenge">
+        <option value="yes">はい</option>
+        <option value="no">いいえ</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <button onclick="calculateDate()">計算する</button>
+    </div>
+
+    <div id="result"></div>
+
+    <div id="notice">
+      <h3>注意事項：</h3>
+      <ul>
+        <li>恒常の場合、毎日交換所で10個交換するとします。</li>
+        <li>得ラッシュを購入する場合は、キャラのかけら5個＋星4かけら1個の計6個とします。</li>
+        <li>チャレバトの変わる周期は1週間と仮定します。</li>
+        <li>ログイン報酬や配布でもらえるかけらは含まれていないので、表示されたものより早く目標数に達成することがあります。</li>
+        <li>本サイトは、ユーザー有志の元に作成されており、非公式のサイトとなります。</li>   
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <button id="showHistoryButton">履歴を表示</button>
+    </div>
   </div>
 
-  <div class="form-group">
-    <label for="goal">目標のかけら数 (最大240):</label>
-    <input type="number" id="goal" min="1" max="240">
+  <!-- 履歴表示画面 -->
+  <div id="historyScreen" style="display: none;">
+    <h3>計算履歴</h3>
+    <div class="form-group">
+      <button id="backToCalculator">戻る</button>
+    </div>
+    <ul id="historyList"></ul>
   </div>
-
-  <div class="form-group">
-    <label for="daily">毎日もらえるかけらの数:</label>
-    <input type="number" id="daily" min="0">
-  </div>
-
-  <div class="form-group">
-    <label for="weekly">毎週もらえるかけらの数:</label>
-    <input type="number" id="weekly" min="0">
-  </div>
-
-  <div class="form-group">
-    <label for="biweekly">隔週でもらえるかけらの数:</label>
-    <input type="number" id="biweekly" min="0">
-  </div>
-
-  <div class="form-group">
-    <label for="chargebattle">チャレバト課金をしている:</label>
-    <select id="chargebattle">
-      <option value="no">いいえ</option>
-      <option value="yes">はい</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="training">特訓課金をしている:</label>
-    <select id="training">
-      <option value="no">いいえ</option>
-      <option value="yes">はい</option>
-    </select>
-  </div>
-
-  <button onclick="calculate()">計算</button>
-
-  <div id="result"></div>
-  <div id="money"></div>
 
   <script>
-    function calculate() {
-      const current = Number(document.getElementById("current").value);
-      const goal = Number(document.getElementById("goal").value);
-      const daily = Number(document.getElementById("daily").value);
-      const weekly = Number(document.getElementById("weekly").value);
-      const biweekly = Number(document.getElementById("biweekly").value);
-      const chargebattle = document.getElementById("chargebattle").value;
-      const training = document.getElementById("training").value;
+    // オプションの表示／非表示
+    function showHideOptions() {
+      document.getElementById('limitedOptions').style.display =
+        document.getElementById('characterType').value === 'limited' ? 'block' : 'none';
+      if (document.getElementById('specialTraining').value === 'yes') {
+        document.getElementById('trainingOptions').style.display = 'block';
+        document.getElementById('trainingPaid').style.display = 'block';
+      } else {
+        document.getElementById('trainingOptions').style.display = 'none';
+        document.getElementById('trainingPaid').style.display = 'none';
+      }
+      document.getElementById('leagueOptions').style.display =
+        document.getElementById('leagueRewards').value === 'yes' ? 'block' : 'none';
+      document.getElementById('challengeOptions').style.display =
+        document.getElementById('challengeBattle').value === 'yes' ? 'block' : 'none';
+    }
+    document.getElementById('characterType').addEventListener('change', showHideOptions);
+    document.getElementById('specialTraining').addEventListener('change', showHideOptions);
+    document.getElementById('leagueRewards').addEventListener('change', showHideOptions);
+    document.getElementById('challengeBattle').addEventListener('change', showHideOptions);
 
-      if (goal > 240 || current < 0 || goal <= current) {
-        document.getElementById("result").innerText = "正しいかけら数を入力してください。";
-        document.getElementById("money").innerText = "";
+    // 履歴表示処理
+    function updateHistoryUI() {
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+      const history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+      for (let i = history.length - 1; i >= 0; i--) {
+        const entry = history[i];
+        const li = document.createElement('li');
+        li.setAttribute('data-index', i);
+        const nameDisplay = entry.characterName ? `<strong>${entry.characterName}</strong>：` : '';
+        li.innerHTML = `${nameDisplay}目標達成予定日 <em>${entry.targetDate}</em>`;
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.title = 'この履歴を削除';
+        deleteBtn.innerText = '🗑️';
+        deleteBtn.onclick = function() {
+          deleteHistoryItem(i);
+        };
+        li.appendChild(deleteBtn);
+        historyList.appendChild(li);
+      }
+    }
+
+    // 履歴項目の削除
+    function deleteHistoryItem(index) {
+      let history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+      history.splice(index, 1);
+      localStorage.setItem('calculationHistory', JSON.stringify(history));
+      updateHistoryUI();
+    }
+
+    // 計算処理（2つ目のコードと同じ計算ロジック）
+    function calculateDate() {
+      const startDate = new Date(document.getElementById('startDate').value);
+      const targetShardsInput = document.getElementById('targetShards').value;
+      const characterType = document.getElementById('characterType').value;
+      const purchaseRush = document.getElementById('purchaseRush').value;
+      const specialTraining = document.getElementById('specialTraining').value;
+      const allianceCheer = document.getElementById('allianceCheer').value;
+      const paidTraining = document.getElementById('paidTraining').value;
+      const leagueRewards = document.getElementById('leagueRewards').value;
+      const leagueRank = document.getElementById('leagueRank').value;
+      const challengeBattle = document.getElementById('challengeBattle').value;
+      const paidChallenge = document.getElementById('paidChallenge').value;
+
+      // 入力チェック
+      if (!/^\d+$/.test(targetShardsInput)) {
+        document.getElementById('result').innerHTML = '<span class="error">半角数字で入力してください。</span>';
+        return;
+      }
+      const targetShards = parseInt(targetShardsInput);
+
+      let dailyShards = 0;
+      let hasShardSource = false;
+
+      // キャラクターの種類による基本かけら数
+      if (characterType === 'regular') {
+        dailyShards += 10;
+        hasShardSource = true;
+      } else if (characterType === 'limited' && purchaseRush === 'yes') {
+        dailyShards += 6;
+        hasShardSource = true;
+      }
+
+      // 特訓
+      if (specialTraining === 'yes') {
+        const hoursPerShard = paidTraining === 'yes' ? 3.75 : 5;
+        dailyShards += 24 / hoursPerShard;
+        hasShardSource = true;
+        if (allianceCheer === 'yes') {
+          dailyShards += 1;
+        }
+      }
+
+      // チャレバト
+      if (challengeBattle === 'yes') {
+        dailyShards += paidChallenge === 'yes' ? 60 / 7 : 20 / 7;
+        hasShardSource = true;
+      }
+
+      // リーグ報酬が「はい」の場合にもかけら獲得手段としてカウント
+      if (leagueRewards === 'yes') {
+        hasShardSource = true;
+      }
+
+      // かけらを獲得する方法が選択されていない場合のエラー処理
+      if (!hasShardSource && characterType !== 'regular') {
+        document.getElementById('result').innerHTML = '<span class="error">エラー: かけらを獲得する方法を選択してください。</span>';
         return;
       }
 
-      let needed = goal - current;
-      let day = 0;
+      const leagueRewardMap = {
+        'SS': 50, 'S+': 40, 'S': 30, 'S-': 20, 'A+': 15, 'A': 10, 'A-': 5
+      };
 
-      while (needed > 0 && day < 3650) {
-        let plus = daily;
-        if (day % 7 === 0) plus += weekly;
-        if (day % 14 === 0) plus += biweekly;
-        needed -= plus;
-        day++;
+      let totalDays = 0;
+      let currentShards = 0;
+      while (currentShards < targetShards) {
+        currentShards += dailyShards;
+        totalDays++;
+        // リーグ報酬の追加（1日と16日に適用）
+        if (leagueRewards === 'yes') {
+          const currentDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
+          if (currentDate.getDate() === 1 || currentDate.getDate() === 16) {
+            currentShards += leagueRewardMap[leagueRank];
+          }
+        }
       }
+      const targetDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
+      document.getElementById('result').innerText = `目標達成予定日: ${targetDate.toLocaleDateString('ja-JP')}`;
 
-      const now = new Date();
-      now.setDate(now.getDate() + day);
-      const yyyy = now.getFullYear();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-
-      document.getElementById("result").innerText = `目標達成予定日: ${yyyy}/${mm}/${dd}`;
-
-      let chargeTotal = 0;
-      if (chargebattle === "yes") {
-        chargeTotal += Math.ceil(day / 7) * 480;
-      }
-      if (training === "yes") {
-        chargeTotal += Math.ceil(day / 14) * 800;
-      }
-
-      if (chargeTotal > 0) {
-        document.getElementById("money").innerText = `予定課金額: ${chargeTotal.toLocaleString()}円`;
-      } else {
-        document.getElementById("money").innerText = "";
-      }
+      // 履歴への保存
+      const characterName = document.getElementById('characterName').value.trim();
+      const entry = {
+        characterName: characterName,
+        calculatedDate: new Date().toISOString(),
+        targetDate: targetDate.toLocaleDateString('ja-JP')
+      };
+      const history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+      history.push(entry);
+      localStorage.setItem('calculationHistory', JSON.stringify(history));
+      updateHistoryUI();
     }
+
+    // 画面切替：履歴画面を表示
+    document.getElementById('showHistoryButton').addEventListener('click', function() {
+      document.getElementById('calculatorScreen').style.display = 'none';
+      document.getElementById('historyScreen').style.display = 'block';
+      updateHistoryUI();
+    });
+    // 画面切替：計算フォーム画面に戻る
+    document.getElementById('backToCalculator').addEventListener('click', function() {
+      document.getElementById('historyScreen').style.display = 'none';
+      document.getElementById('calculatorScreen').style.display = 'block';
+    });
+
+    // 初期設定：開始日に今日の日付をセット
+    document.getElementById('startDate').valueAsDate = new Date();
+    showHideOptions();
   </script>
 </body>
 </html>
