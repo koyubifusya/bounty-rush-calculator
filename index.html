@@ -74,12 +74,15 @@
             font-weight: bold;
             text-align: center;
             color: #4169e1;
-            font-size: 1.3em; /* フォントサイズを少し大きくする */
+            font-size: 1.2em; /* フォントサイズを少し大きくする */
             background-color: #e6f2ff;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #4169e1;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #result p {
+            margin: 5px 0; /* 結果表示の行間調整 */
         }
         .info-box { /* 新しい情報ボックススタイル */
             background-color: #e6f2ff;
@@ -182,10 +185,6 @@
             cursor: pointer;
         }
 
-        /* LLM関連のスタイルは削除されたため不要 */
-        /* .llm-section, .llm-result, .loading-spinner のスタイルは削除 */
-        /* @keyframes spin のキーフレームも削除 */
-
         /* レスポンシブデザイン */
         @media (max-width: 600px) {
             h1 {
@@ -204,7 +203,7 @@
 </head>
 <body>
     <header>
-        <h1>バウンティラッシュかけら計算</h1>
+        <h1>バウンティラッシュかけら計算ツール</h1>
         <p style="text-align: center; color: #555;">
            「ワンピース バウンティラッシュ」のキャラクターかけら集めを効率的にサポート！
             目標達成までの日数を予測し、計画的な育成を支援します。
@@ -244,7 +243,6 @@
                 <option value="limited">フェス限</option>
                 <option value="regular">恒常</option>
             </select>
-            <!-- <small style="color: #666;">※恒常キャラは毎日交換所でかけらを交換すると仮定します。</small> -->
         </div>
 
         <div class="form-group" id="limitedOptions" style="display:none;">
@@ -253,7 +251,6 @@
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
             </select>
-            <!-- <small style="color: #666;">※得ラッシュ30購入時は、キャラかけら5個＋星4かけら1個（計6個）を毎日交換すると仮定します。</small> -->
         </div>
 
         <div class="form-group">
@@ -270,7 +267,6 @@
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
             </select>
-            <!-- <small style="color: #666;">※同盟エールで特訓加速が期待できます。</small> -->
         </div>
 
         <div class="form-group" id="trainingPaid" style="display:none;">
@@ -279,7 +275,6 @@
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
             </select>
-            <!-- <small style="color: #666;">※課金することで特訓時間を短縮し、かけらの獲得ペースを速めることができます。</small> -->
         </div>
 
         <div class="form-group">
@@ -288,7 +283,6 @@
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
             </select>
-            <!-- <small style="color: #666;">※リーグ終了時にランクに応じたかけらを獲得します。</small> -->
         </div>
 
         <div class="form-group" id="leagueOptions" style="display:none;">
@@ -302,7 +296,6 @@
                 <option value="A">A</option>
                 <option value="A-">A-</option>
             </select>
-            <!-- <small style="color: #666;">※リーグ報酬は毎月1日と16日に獲得できると仮定します。</small> -->
         </div>
 
         <div class="form-group">
@@ -319,7 +312,6 @@
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
             </select>
-            <!-- <small style="color: #666;">※チャレバトの報酬は1週間周期で更新されると仮定します。</small> -->
         </div>
 
         <div class="form-group">
@@ -328,15 +320,14 @@
 
         <div id="result"></div>
 
-        <!-- LLM連携機能は削除されました -->
-
         <div class="info-box" id="notice">
             <h3>注意事項</h3>
             <ul>
                 <li>恒常の場合、毎日交換所で10個交換するとします。</li>
                 <li>得ラッシュ30を購入する場合は、キャラのかけら5個＋星4かけら1個の計6個を毎日交換するとします。</li>
+                <li>チャレバト課金はライトとプレミアム両方課金することとします。</li>
                 <li>チャレバトの変わる周期は1週間と仮定します。</li>
-                <li>ログイン報酬や配布でもらえるかけらは含まれていないので、表示されたものより早く目標数に達成することがあります。</li>
+                <li>ログイン報酬や配布でもらえるかけらは含まれていないので、表示されたものより早く目標数に達成することがあります。そのため、予想課金額も最大値となります</li>
                 <li>本サイトは、ユーザー有志の元に作成されており、非公式のサイトとなります。</li>
             </ul>
         </div>
@@ -352,7 +343,7 @@
                 <dd>A. バウンティラッシュのキャラクターのレベルを上げるために必要なアイテムです。集めることでキャラクターを強化できます。</dd>
 
                 <dt>Q. 特訓ではどれくらいかけらがもらえますか？</dt>
-                <dd>A. 無課金の場合、1かけらにつき5時間、課金の場合は3.75時間かかります。同盟エールを使うと1日にもらえるかけらが1つ増えます。</dd>
+                <dd>A. 無課金の場合、1かけらにつき5時間、課金の場合は3.75時間かかります。同盟エールを使うとさらに加速します。</dd>
 
                 <dt>Q. リーグ報酬はいつ獲得できますか？</dt>
                 <dd>A. 毎月1日と16日に、到達したリーグランクに応じたかけらが配布されます。</dd>
@@ -404,7 +395,7 @@
             <span class="close-button" onclick="closeModal('aboutModal')">&times;</span>
             <h2>このサイトについて</h2>
             <p>
-                この「バウンティラッシュかけら計算ツール」は、人気ゲーム「ワンピース バウンティラッシュ」をより深く楽しむために、
+                この「バウンティラッシュかけら計算ツール」は、「ワンピース バウンティラッシュ」をより深く楽しむために、
                 ユーザー有志によって作成された非公式のツールです。
                 キャラクターの育成計画を立てる際の一助となることを目的としています。
             </p>
@@ -430,7 +421,6 @@
             <p>
                 X (旧Twitter)：<a href="https://x.com/koyubi_fusya" target="_blank" rel="noopener noreferrer">@koyubi_fusya</a> (←DMはこちらから)
             </p>
-            <!-- 「お問い合わせの際は、件名に「バウンティラッシュかけら計算ツールについて」とご記載いただけるとスムーズです。」は削除されました -->
         </div>
     </div>
 
@@ -449,7 +439,6 @@
             document.getElementById('limitedOptions').style.display =
                 document.getElementById('characterType').value === 'limited' ? 'block' : 'none';
 
-            // 特訓オプションの表示/非表示
             if (document.getElementById('specialTraining').value === 'yes') {
                 document.getElementById('trainingOptions').style.display = 'block';
                 document.getElementById('trainingPaid').style.display = 'block';
@@ -458,11 +447,9 @@
                 document.getElementById('trainingPaid').style.display = 'none';
             }
 
-            // リーグ報酬オプションの表示/非表示
             document.getElementById('leagueOptions').style.display =
                 document.getElementById('leagueRewards').value === 'yes' ? 'block' : 'none';
 
-            // チャレバトオプションの表示/非表示
             document.getElementById('challengeOptions').style.display =
                 document.getElementById('challengeBattle').value === 'yes' ? 'block' : 'none';
         }
@@ -478,13 +465,12 @@
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = '';
             const history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
-            // 最新の履歴から表示するために逆順でループ
             for (let i = history.length - 1; i >= 0; i--) {
                 const entry = history[i];
                 const li = document.createElement('li');
                 li.setAttribute('data-index', i);
                 const nameDisplay = entry.characterName ? `<strong>${entry.characterName}</strong>：` : '';
-                li.innerHTML = `${nameDisplay}目標達成予定日 <em>${entry.targetDate}</em>`;
+                li.innerHTML = `${nameDisplay}目標達成予定日 <em>${entry.targetDate}</em> （課金額: ${entry.totalExpense.toLocaleString('ja-JP')}円）`;
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-btn';
                 deleteBtn.title = 'この履歴を削除';
@@ -500,8 +486,6 @@
         // 履歴項目の削除
         function deleteHistoryItem(index) {
             let history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
-            // スプライスは元の配列を変更するため、インデックスがずれる可能性があるため、
-            // 削除対象のインデックスが現在の配列の長さより小さいことを確認
             if (index < history.length) {
                 history.splice(index, 1);
                 localStorage.setItem('calculationHistory', JSON.stringify(history));
@@ -509,7 +493,7 @@
             }
         }
 
-        // 計算処理（元のロジックを維持）
+        // 計算処理
         function calculateDate() {
             const startDate = new Date(document.getElementById('startDate').value);
             const targetShardsInput = document.getElementById('targetShards').value;
@@ -531,9 +515,8 @@
             const targetShards = parseInt(targetShardsInput);
 
             let dailyShards = 0;
-            let hasShardSource = false; // かけら獲得源があるかどうかのフラグ
+            let hasShardSource = false;
 
-            // キャラクターの種類による基本かけら数
             if (characterType === 'regular') {
                 dailyShards += 10;
                 hasShardSource = true;
@@ -542,30 +525,25 @@
                 hasShardSource = true;
             }
 
-            // 特訓
             if (specialTraining === 'yes') {
                 const hoursPerShard = paidTraining === 'yes' ? 3.75 : 5;
                 dailyShards += 24 / hoursPerShard;
                 hasShardSource = true;
                 if (allianceCheer === 'yes') {
-                    dailyShards += 1; // 同盟エールで追加
+                    dailyShards += 1;
                 }
             }
 
-            // チャレバト
             if (challengeBattle === 'yes') {
-                dailyShards += paidChallenge === 'yes' ? 60 / 7 : 20 / 7; // 週間獲得数を日割り
+                dailyShards += paidChallenge === 'yes' ? 60 / 7 : 20 / 7;
                 hasShardSource = true;
             }
 
-            // リーグ報酬が「はい」の場合にもかけら獲得手段としてカウント
             if (leagueRewards === 'yes') {
                 hasShardSource = true;
             }
 
-            // かけらを獲得する方法が選択されていない場合のエラー処理
-            // 恒常キャラで交換所利用の場合、dailyShardsは最低10なのでhasShardSourceはtrueになる
-            if (!hasShardSource && dailyShards === 0) { // dailyShardsが0の場合も追加
+            if (!hasShardSource && dailyShards === 0) {
                 document.getElementById('result').innerHTML = '<span class="error">エラー: かけらを獲得する方法を選択してください。</span>';
                 return;
             }
@@ -576,31 +554,42 @@
 
             let totalDays = 0;
             let currentShards = 0;
-            // リーグ報酬を考慮した計算ロジック
             while (currentShards < targetShards) {
-                // 毎日獲得できるかけらを追加
                 currentShards += dailyShards;
                 totalDays++;
 
-                // リーグ報酬の追加（1日と16日に適用）
                 if (leagueRewards === 'yes') {
                     const currentDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
-                    // 月の1日または16日であればリーグ報酬を追加
                     if (currentDate.getDate() === 1 || currentDate.getDate() === 16) {
                         currentShards += leagueRewardMap[leagueRank];
                     }
                 }
             }
-
             const targetDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
-            document.getElementById('result').innerText = `目標達成予定日: ${targetDate.toLocaleDateString('ja-JP')}`;
+
+            // 課金額の計算
+            let totalExpense = 0;
+            if (paidChallenge === 'yes') {
+                const weeks = Math.ceil(totalDays / 7);
+                totalExpense += weeks * 480;
+            }
+            if (paidTraining === 'yes') {
+                const biWeeks = Math.ceil(totalDays / 14); // 2週間ごとに800円
+                totalExpense += biWeeks * 800;
+            }
+
+            // 結果表示
+            let resultHtml = `<p>目標達成予定日: <strong>${targetDate.toLocaleDateString('ja-JP')}</strong></p>`;
+            resultHtml += `<p>目標達成までの予想課金額: <strong>${totalExpense.toLocaleString('ja-JP')}円</strong></p>`;
+            document.getElementById('result').innerHTML = resultHtml;
 
             // 履歴への保存
             const characterName = document.getElementById('characterName').value.trim();
             const entry = {
                 characterName: characterName,
-                calculatedDate: new Date().toISOString(), // 計算した日時
-                targetDate: targetDate.toLocaleDateString('ja-JP')
+                calculatedDate: new Date().toISOString(),
+                targetDate: targetDate.toLocaleDateString('ja-JP'),
+                totalExpense: totalExpense // 課金額も保存
             };
             const history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
             history.push(entry);
