@@ -107,28 +107,45 @@
             padding-left: 0;
         }
         li {
-            padding: 8px; /* パディングを増やして見やすくする */
+            padding: 12px; /* パディングを増やして見やすくする */
             border-bottom: 1px solid #add8e6; /* 境界線を薄くする */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; /* Flexboxを維持 */
+            align-items: center; /* 中央揃え */
+            justify-content: space-between; /* 均等配置 */
+            flex-wrap: wrap; /* 小さい画面で折り返す */
         }
         li:last-child {
             border-bottom: none; /* 最後の要素の下線は削除 */
+        }
+        .history-details {
+            flex-grow: 1; /* 詳細部分が利用可能なスペースを占める */
+            margin-right: 10px; /* 詳細とボタンの間にスペース */
+            min-width: 0; /* Flexアイテムとしてコンテンツが収縮できるようにする */
+        }
+        .history-details p {
+            margin: 4px 0; /* 履歴詳細の行間調整 */
+            word-break: break-word; /* 長い単語でも折り返す */
+        }
+        .history-char-name {
+            font-size: 1.1em; /* キャラクター名を少し大きく */
+            color: #2a52be;
+            font-weight: bold; /* キャラクター名を太字に */
         }
         .delete-btn {
             background-color: #dc3545; /* 赤色を少し明るく */
             color: white;
             border: none;
-            width: 30px; /* サイズを少し大きく */
-            height: 30px;
+            width: 40px; /* ボタンを大きく */
+            height: 40px; /* ボタンを大きく */
             cursor: pointer;
-            font-size: 18px; /* フォントサイズを大きく */
-            line-height: 30px;
+            font-size: 20px; /* アイコンを大きく */
+            line-height: 40px; /* アイコンを中央に */
             text-align: center;
             padding: 0;
             border-radius: 5px; /* 角を丸く */
             transition: background-color 0.3s ease;
+            flex-shrink: 0; /* ボタンが縮まないようにする */
+            margin-left: auto; /* ボタンを右に寄せる */
         }
         .delete-btn:hover {
             background-color: #c82333;
@@ -199,11 +216,30 @@
                 margin: 2% auto;
             }
         }
+        /* スマートフォン向け履歴表示の調整 */
+        @media (max-width: 400px) {
+            li {
+                flex-direction: column; /* 要素を縦に並べる */
+                align-items: flex-start; /* 左寄せ */
+                padding: 10px; /* パディングを少し減らす */
+            }
+            .history-details {
+                width: 100%; /* 詳細部分を幅いっぱいに */
+                margin-right: 0;
+                margin-bottom: 10px; /* 詳細の下にスペース */
+            }
+            .delete-btn {
+                width: 100%; /* ボタンを幅いっぱいに */
+                height: 45px;
+                margin-top: 10px; /* ボタンの上にスペース */
+                margin-left: 0; /* 左寄せにする */
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h1>バウンティラッシュかけら計算ツール</h1>
+        <h1>バウンティラッシュかけら計算</h1>
         <p style="text-align: center; color: #555;">
            「ワンピース バウンティラッシュ」のキャラクターかけら集めを効率的にサポート！
             目標達成までの日数を予測し、計画的な育成を支援します。
@@ -469,16 +505,26 @@
                 const entry = history[i];
                 const li = document.createElement('li');
                 li.setAttribute('data-index', i);
-                const nameDisplay = entry.characterName ? `<strong>${entry.characterName}</strong>：` : '';
-                li.innerHTML = `${nameDisplay}目標達成予定日 <em>${entry.targetDate}</em> （課金額: ${entry.totalExpense.toLocaleString('ja-JP')}円）`;
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.title = 'この履歴を削除';
-                deleteBtn.innerText = '🗑️';
-                deleteBtn.onclick = function() {
+
+                let contentHtml = '';
+                if (entry.characterName) {
+                    contentHtml += `<p class="history-char-name">${entry.characterName}</p>`;
+                }
+                contentHtml += `<p class="history-date">目標達成予定日: <em>${entry.targetDate}</em></p>`;
+                contentHtml += `<p class="history-expense">予想課金額: ${entry.totalExpense.toLocaleString('ja-JP')}円</p>`;
+
+                li.innerHTML = `
+                    <div class="history-details">
+                        ${contentHtml}
+                    </div>
+                    <button class="delete-btn" title="この履歴を削除">🗑️</button>
+                `;
+
+                // Add event listener to the delete button (important as innerHTML overwrites)
+                li.querySelector('.delete-btn').onclick = function() {
                     deleteHistoryItem(i);
                 };
-                li.appendChild(deleteBtn);
+
                 historyList.appendChild(li);
             }
         }
