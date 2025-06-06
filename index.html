@@ -248,7 +248,11 @@
 
     <!-- 計算フォーム画面 -->
     <div id="calculatorScreen">
-        <div class="info-box">
+        <!-- 「このツールについて」セクションの開閉ボタンを追加 -->
+        <div class="form-group">
+            <button id="toggleAboutButton" onclick="toggleAbout()">このツールについて を表示/非表示</button>
+        </div>
+        <div class="info-box" id="aboutToolSection" style="display: none;">
             <h3>このツールについて</h3>
             <p>
                 このツールは、ワンピース バウンティラッシュで特定のキャラクターのかけらを目標数集めるのにかかる日数を計算します。
@@ -256,6 +260,7 @@
                 計画的なキャラクター育成にぜひご活用ください！
             </p>
         </div>
+        <!-- 「このツールについて」セクションここまで -->
 
         <div class="form-group">
             <label for="characterName">キャラクター名 (任意)：</label>
@@ -671,6 +676,16 @@
                 event.target.style.display = 'none';
             }
         };
+
+        // 「このツールについて」セクションの表示/非表示を切り替える関数を追加
+        function toggleAbout() {
+            const aboutToolSection = document.getElementById('aboutToolSection');
+            if (aboutToolSection.style.display === 'none') {
+                aboutToolSection.style.display = 'block';
+            } else {
+                aboutToolSection.style.display = 'none';
+            }
+        }
 
         // FAQセクションの表示/非表示を切り替える関数
         function toggleFaq() {
