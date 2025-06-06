@@ -316,6 +316,14 @@
                 <option value="yes">はい</option>
                 <option value="no">いいえ</option>
             </select>
+            <!-- 特訓の課金額を予想費用に含めるかのON/OFFを追加 -->
+            <div class="form-group" id="includeTrainingExpenseOption" style="display:none; margin-top: 10px;">
+                <label for="includeTrainingExpense">特訓の課金額を予想費用に含めますか？</label>
+                <select id="includeTrainingExpense">
+                    <option value="yes">はい</option>
+                    <option value="no">いいえ</option>
+                </select>
+            </div>
         </div>
 
         <div class="form-group">
@@ -480,12 +488,20 @@
             document.getElementById('limitedOptions').style.display =
                 document.getElementById('characterType').value === 'limited' ? 'block' : 'none';
 
+            // 特訓のオプションと課金オプションの表示制御
             if (document.getElementById('specialTraining').value === 'yes') {
                 document.getElementById('trainingOptions').style.display = 'block';
                 document.getElementById('trainingPaid').style.display = 'block';
+                // 特訓に課金する場合のみ、課金額を計算に含めるかどうかのオプションを表示
+                if (document.getElementById('paidTraining').value === 'yes') {
+                    document.getElementById('includeTrainingExpenseOption').style.display = 'block';
+                } else {
+                    document.getElementById('includeTrainingExpenseOption').style.display = 'none';
+                }
             } else {
                 document.getElementById('trainingOptions').style.display = 'none';
                 document.getElementById('trainingPaid').style.display = 'none';
+                document.getElementById('includeTrainingExpenseOption').style.display = 'none'; // 非表示にする
             }
 
             document.getElementById('leagueOptions').style.display =
@@ -498,6 +514,7 @@
         // イベントリスナー
         document.getElementById('characterType').addEventListener('change', showHideOptions);
         document.getElementById('specialTraining').addEventListener('change', showHideOptions);
+        document.getElementById('paidTraining').addEventListener('change', showHideOptions); // 新しく追加
         document.getElementById('leagueRewards').addEventListener('change', showHideOptions);
         document.getElementById('challengeBattle').addEventListener('change', showHideOptions);
 
@@ -557,6 +574,7 @@
             const leagueRank = document.getElementById('leagueRank').value;
             const challengeBattle = document.getElementById('challengeBattle').value;
             const paidChallenge = document.getElementById('paidChallenge').value;
+            const includeTrainingExpense = document.getElementById('includeTrainingExpense').value; // 新しく追加
 
             // 入力チェック
             if (!/^\d+$/.test(targetShardsInput) || parseInt(targetShardsInput) <= 0) {
@@ -577,7 +595,7 @@
             }
 
             if (specialTraining === 'yes') {
-                const hoursPerShard = paidTraining === 'yes' ? 3.75 : 5;
+                const hoursPerShard = paidTraining === 'yes' ? 3.75 : 5; // ここで課金有無がかけら獲得ペースに影響
                 dailyShards += 24 / hoursPerShard;
                 hasShardSource = true;
                 if (allianceCheer === 'yes') {
@@ -618,13 +636,14 @@
             }
             const targetDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
 
-            // 課金額の計算
+            // 課金額の計算ロジックを更新
             let totalExpense = 0;
             if (paidChallenge === 'yes') {
                 const weeks = Math.ceil(totalDays / 7);
                 totalExpense += weeks * 480;
             }
-            if (paidTraining === 'yes') {
+            // 特訓の課金額は、paidTrainingが'yes'かつincludeTrainingExpenseが'yes'の場合のみ加算
+            if (paidTraining === 'yes' && includeTrainingExpense === 'yes') {
                 const biWeeks = Math.ceil(totalDays / 14); // 2週間ごとに800円
                 totalExpense += biWeeks * 800;
             }
@@ -677,7 +696,7 @@
             }
         };
 
-        // 「このツールについて」セクションの表示/非表示を切り替える関数を追加
+        // 「このツールについて」セクションの表示/非表示を切り替える関数
         function toggleAbout() {
             const aboutToolSection = document.getElementById('aboutToolSection');
             if (aboutToolSection.style.display === 'none') {
