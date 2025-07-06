@@ -241,7 +241,7 @@
     <header>
         <h1>バウンティラッシュかけら計算</h1>
         <p style="text-align: center; color: #555;">
-           「ワンピース バウンティラッシュ」のキャラクターかけら集めを効率的にサポート！
+            「ワンピース バウンティラッシュ」のキャラクターかけら集めを効率的にサポート！
             目標達成までの日数を予測し、計画的な育成を支援します。
         </p>
     </header>
@@ -475,41 +475,119 @@
     </footer>
 
     <script>
-        // オプションの表示／非表示
+        // グローバル変数：最後に計算された予想課金額と目標達成日を保持
+        let lastCalculatedExpense = 0;
+        let lastCalculatedTargetDate = '';
+
+        /**
+         * 結果表示エリア（#result）の内容を更新する関数
+         * @param {number} expense - 表示する予想課金額
+         * @param {string} [targetDateStr=null] - 表示する目標達成日文字列。省略された場合は既存の表示を維持。
+         */
+        function updateResultDisplay(expense, targetDateStr = null) {
+            const resultDiv = document.getElementById('result');
+            let existingTargetDateHtml = '';
+
+            // 目標達成日文字列が提供された場合はそれを使用
+            if (targetDateStr !== null && targetDateStr !== '') {
+                existingTargetDateHtml = `<p>目標達成予定日: <strong>${targetDateStr}</strong></p>`;
+            } else {
+                // 提供されなかった場合は、現在の表示から目標達成日を抽出して維持
+                const currentHtml = resultDiv.innerHTML;
+                const dateMatch = currentHtml.match(/目標達成予定日: <strong>(.*?)<\/strong>/);
+                if (dateMatch) {
+                    existingTargetDateHtml = `<p>目標達成予定日: <strong>${dateMatch[1]}</strong></p>`;
+                }
+            }
+
+            // 結果エリアを更新
+            resultDiv.innerHTML = `
+                ${existingTargetDateHtml}
+                <p>予想課金額: <strong>${expense.toLocaleString('ja-JP')}円</strong></p>
+            `;
+        }
+
+        /**
+         * オプションの表示／非表示を切り替える関数
+         * また、課金オプションの選択に応じて予想課金額の表示を即座に更新する
+         */
         function showHideOptions() {
+            // キャラクターの種類に応じたオプションの表示／非表示
             document.getElementById('limitedOptions').style.display =
                 document.getElementById('characterType').value === 'limited' ? 'block' : 'none';
 
+            // 特訓の有無に応じたオプションの表示／非表示
             if (document.getElementById('specialTraining').value === 'yes') {
                 document.getElementById('trainingOptions').style.display = 'block';
                 document.getElementById('trainingPaid').style.display = 'block';
             } else {
                 document.getElementById('trainingOptions').style.display = 'none';
                 document.getElementById('trainingPaid').style.display = 'none';
+                // 特訓をしない場合、特訓課金は「いいえ」とみなす
+                document.getElementById('paidTraining').value = 'no';
             }
 
+            // リーグ報酬の有無に応じたオプションの表示／非表示
             document.getElementById('leagueOptions').style.display =
                 document.getElementById('leagueRewards').value === 'yes' ? 'block' : 'none';
 
-            document.getElementById('challengeOptions').style.display =
-                document.getElementById('challengeBattle').value === 'yes' ? 'block' : 'none';
+            // チャレンジバトルの有無に応じたオプションの表示／非表示
+            if (document.getElementById('challengeBattle').value === 'yes') {
+                document.getElementById('challengeOptions').style.display = 'block';
+            } else {
+                document.getElementById('challengeOptions').style.display = 'none';
+                // チャレバトを使わない場合、チャレバト課金は「いいえ」とみなす
+                document.getElementById('paidChallenge').value = 'no';
+            }
+
+            // --- 予想課金額の表示を即座に更新するロジック ---
+            const specialTraining = document.getElementById('specialTraining').value;
+            const paidTraining = document.getElementById('paidTraining').value; // ここでは非表示でも値を取得
+            const challengeBattle = document.getElementById('challengeBattle').value;
+            const paidChallenge = document.getElementById('paidChallenge').value; // ここでは非表示でも値を取得
+
+            let currentDisplayedExpense = 0; // デフォルトは0円
+
+            // 特訓に課金が有効かどうかを判定
+            const isTrainingPaidActive = (specialTraining === 'yes' && paidTraining === 'yes');
+            // チャレバトに課金が有効かどうかを判定
+            const isChallengePaidActive = (challengeBattle === 'yes' && paidChallenge === 'yes');
+
+            // 課金要素が一つでも有効な場合は、最後に計算された課金額を表示
+            // そうでなければ0円を表示
+            if (isTrainingPaidActive || isChallengePaidActive) {
+                currentDisplayedExpense = lastCalculatedExpense;
+            } else {
+                currentDisplayedExpense = 0;
+            }
+
+            // 結果表示エリアの課金額を更新（日付は既存のものを維持または空）
+            updateResultDisplay(currentDisplayedExpense, lastCalculatedTargetDate);
         }
 
-        // イベントリスナー
+        // イベントリスナーを設定
         document.getElementById('characterType').addEventListener('change', showHideOptions);
         document.getElementById('specialTraining').addEventListener('change', showHideOptions);
         document.getElementById('leagueRewards').addEventListener('change', showHideOptions);
         document.getElementById('challengeBattle').addEventListener('change', showHideOptions);
+        // 課金オプション自体が変更された際も即座に更新するためイベントリスナーを追加
+        document.getElementById('paidTraining').addEventListener('change', showHideOptions);
+        document.getElementById('paidChallenge').addEventListener('change', showHideOptions);
 
-        // 履歴表示処理
+
+        /**
+         * 計算履歴UIを更新する関数
+         */
         function updateHistoryUI() {
             const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
+            historyList.innerHTML = ''; // 既存のリストをクリア
             const history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
+
+            // 最新の履歴から表示
             for (let i = history.length - 1; i >= 0; i--) {
                 const entry = history[i];
                 const li = document.createElement('li');
-                li.setAttribute('data-index', i);
+                li.setAttribute('data-index', i); // 削除用にインデックスを保持
 
                 let contentHtml = '';
                 if (entry.characterName) {
@@ -525,7 +603,7 @@
                     <button class="delete-btn" title="この履歴を削除">🗑️</button>
                 `;
 
-                // Add event listener to the delete button (important as innerHTML overwrites)
+                // 削除ボタンにイベントリスナーを追加
                 li.querySelector('.delete-btn').onclick = function() {
                     deleteHistoryItem(i);
                 };
@@ -534,17 +612,24 @@
             }
         }
 
-        // 履歴項目の削除
+        /**
+         * 履歴項目を削除する関数
+         * @param {number} index - 削除する履歴のインデックス
+         */
         function deleteHistoryItem(index) {
             let history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
             if (index < history.length) {
+                // 指定されたインデックスの項目を削除
                 history.splice(index, 1);
                 localStorage.setItem('calculationHistory', JSON.stringify(history));
                 updateHistoryUI(); // UIを再更新
             }
         }
 
-        // 計算処理
+        /**
+         * かけら目標達成日と予想課金額を計算する関数
+         * 計算ロジックは変更していません。
+         */
         function calculateDate() {
             const startDate = new Date(document.getElementById('startDate').value);
             const targetShardsInput = document.getElementById('targetShards').value;
@@ -566,49 +651,52 @@
             const targetShards = parseInt(targetShardsInput);
 
             let dailyShards = 0;
-            let hasShardSource = false;
+            let hasShardSource = false; // かけら獲得方法が選択されているか
 
+            // キャラクターの種類によるかけら獲得量
             if (characterType === 'regular') {
-                dailyShards += 10;
+                dailyShards += 10; // 恒常キャラは毎日10個交換
                 hasShardSource = true;
             } else if (characterType === 'limited' && purchaseRush === 'yes') {
-                dailyShards += 6;
+                dailyShards += 6; // フェス限で得ラッシュ30購入は毎日6個
                 hasShardSource = true;
             }
 
+            // 特訓によるかけら獲得量
             if (specialTraining === 'yes') {
-                const hoursPerShard = paidTraining === 'yes' ? 3.75 : 5;
-                dailyShards += 24 / hoursPerShard;
+                const hoursPerShard = paidTraining === 'yes' ? 3.75 : 5; // 課金有無で時間変動
+                dailyShards += 24 / hoursPerShard; // 1日あたりの特訓かけら
                 hasShardSource = true;
                 if (allianceCheer === 'yes') {
-                    dailyShards += 1;
+                    dailyShards += 1; // 同盟エールで追加
                 }
             }
 
+            // チャレンジバトルによるかけら獲得量
             if (challengeBattle === 'yes') {
-                dailyShards += paidChallenge === 'yes' ? 60 / 7 : 20 / 7;
+                dailyShards += paidChallenge === 'yes' ? 60 / 7 : 20 / 7; // 課金有無で週あたりの獲得量変動、日割り
                 hasShardSource = true;
             }
 
-            if (leagueRewards === 'yes') {
-                hasShardSource = true;
-            }
-
+            // かけら獲得方法が一つも選択されていない場合のエラー
             if (!hasShardSource && dailyShards === 0) {
                 document.getElementById('result').innerHTML = '<span class="error">エラー: かけらを獲得する方法を選択してください。</span>';
                 return;
             }
 
+            // リーグ報酬のかけらマップ
             const leagueRewardMap = {
                 'SS': 50, 'S+': 40, 'S': 30, 'S-': 20, 'A+': 15, 'A': 10, 'A-': 5
             };
 
             let totalDays = 0;
             let currentShards = 0;
+            // 目標かけら数に達するまでシミュレーション
             while (currentShards < targetShards) {
                 currentShards += dailyShards;
                 totalDays++;
 
+                // リーグ報酬の加算（毎月1日と16日）
                 if (leagueRewards === 'yes') {
                     const currentDate = new Date(startDate.getTime() + totalDays * 24 * 60 * 60 * 1000);
                     if (currentDate.getDate() === 1 || currentDate.getDate() === 16) {
@@ -621,26 +709,28 @@
             // 課金額の計算
             let totalExpense = 0;
             if (paidChallenge === 'yes') {
-                const weeks = Math.ceil(totalDays / 7);
-                totalExpense += weeks * 480;
+                const weeks = Math.ceil(totalDays / 7); // 週単位で計算
+                totalExpense += weeks * 480; // チャレバト課金費用
             }
             if (paidTraining === 'yes') {
-                const biWeeks = Math.ceil(totalDays / 14); // 2週間ごとに800円
-                totalExpense += biWeeks * 800;
+                const biWeeks = Math.ceil(totalDays / 14); // 2週間ごとに計算
+                totalExpense += biWeeks * 800; // 特訓課金費用
             }
 
-            // 結果表示
-            let resultHtml = `<p>目標達成予定日: <strong>${targetDate.toLocaleDateString('ja-JP')}</strong></p>`;
-            resultHtml += `<p>目標達成までの予想課金額: <strong>${totalExpense.toLocaleString('ja-JP')}円</strong></p>`;
-            document.getElementById('result').innerHTML = resultHtml;
+            // 計算結果をグローバル変数に保存
+            lastCalculatedExpense = totalExpense;
+            lastCalculatedTargetDate = targetDate.toLocaleDateString('ja-JP');
+
+            // 結果表示エリアを更新
+            updateResultDisplay(lastCalculatedExpense, lastCalculatedTargetDate);
 
             // 履歴への保存
             const characterName = document.getElementById('characterName').value.trim();
             const entry = {
                 characterName: characterName,
                 calculatedDate: new Date().toISOString(),
-                targetDate: targetDate.toLocaleDateString('ja-JP'),
-                totalExpense: totalExpense // 課金額も保存
+                targetDate: lastCalculatedTargetDate,
+                totalExpense: lastCalculatedExpense // 課金額も保存
             };
             const history = JSON.parse(localStorage.getItem('calculationHistory')) || [];
             history.push(entry);
@@ -658,14 +748,22 @@
         document.getElementById('backToCalculator').addEventListener('click', function() {
             document.getElementById('historyScreen').style.display = 'none';
             document.getElementById('calculatorScreen').style.display = 'block';
+            // 計算フォームに戻った際に、現在の選択に基づいて課金額表示を更新
+            showHideOptions();
         });
 
-        // モーダルを開く関数
+        /**
+         * モーダルを開く関数
+         * @param {string} modalId - 開くモーダルのID
+         */
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'block';
         }
 
-        // モーダルを閉じる関数
+        /**
+         * モーダルを閉じる関数
+         * @param {string} modalId - 閉じるモーダルのID
+         */
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
         }
@@ -677,7 +775,9 @@
             }
         };
 
-        // 「このツールについて」セクションの表示/非表示を切り替える関数を追加
+        /**
+         * 「このツールについて」セクションの表示/非表示を切り替える関数
+         */
         function toggleAbout() {
             const aboutToolSection = document.getElementById('aboutToolSection');
             if (aboutToolSection.style.display === 'none') {
@@ -687,7 +787,9 @@
             }
         }
 
-        // FAQセクションの表示/非表示を切り替える関数
+        /**
+         * FAQセクションの表示/非表示を切り替える関数
+         */
         function toggleFaq() {
             const faqSection = document.getElementById('faqSection');
             if (faqSection.style.display === 'none') {
@@ -697,9 +799,15 @@
             }
         }
 
-        // 初期設定：開始日に今日の日付をセット
-        document.getElementById('startDate').valueAsDate = new Date();
-        showHideOptions(); // ページ読み込み時にオプションの表示/非表示を初期化
+        // 初期設定：ページ読み込み時に実行
+        window.onload = function() {
+            // 開始日に今日の日付をセット
+            document.getElementById('startDate').valueAsDate = new Date();
+            // オプションの表示/非表示を初期化し、同時に予想課金額表示も更新
+            showHideOptions();
+            // 初期表示時に結果エリアをクリアし、0円を表示
+            updateResultDisplay(0, '');
+        };
     </script>
 </body>
 </html>
