@@ -4,7 +4,6 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1453866127519257"
             crossorigin="anonymous"></script>
     <meta name="google-adsense-account" content="ca-pub-1453866127519257">
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V0P18WFX75"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -14,16 +13,13 @@
         gtag('config', 'G-V0P18WFX75');
     </script>
     <link rel="manifest" href="manifest.json">
-    <!-- iOS用の設定 -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/new_icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="かけら計算">
 
     <meta charset="UTF-8">
-    <!-- ユーザー拡大を有効にするため、maximum-scaleとuser-scalableを削除 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- サイトの説明を追加し、SEOを改善 -->
     <meta name="description" content="バウンティラッシュのキャラクターかけら目標達成日を計算するツールです。特訓、リーグ報酬、チャレバトなどを考慮して、効率的なかけら収集計画を立てましょう。">
     <title>バウンティラッシュかけら計算ツール | 目標達成日を予測</title>
     <style>
@@ -80,6 +76,8 @@
             border-radius: 8px;
             border: 1px solid #4169e1;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            /* 初期状態では非表示にする */
+            display: none;
         }
         #result p {
             margin: 5px 0; /* 結果表示の行間調整 */
@@ -246,9 +244,7 @@
         </p>
     </header>
 
-    <!-- 計算フォーム画面 -->
     <div id="calculatorScreen">
-        <!-- 「このツールについて」セクションの開閉ボタンを追加 -->
         <div class="form-group">
             <button id="toggleAboutButton" onclick="toggleAbout()">このツールについて を表示/非表示</button>
         </div>
@@ -260,8 +256,6 @@
                 計画的なキャラクター育成にぜひご活用ください！
             </p>
         </div>
-        <!-- 「このツールについて」セクションここまで -->
-
         <div class="form-group">
             <label for="characterName">キャラクター名 (任意)：</label>
             <input type="text" id="characterName" placeholder="例: ルフィ">
@@ -373,7 +367,6 @@
             </ul>
         </div>
 
-        <!-- FAQセクションの追加と初期非表示 -->
         <div class="form-group">
             <button id="toggleFaqButton" onclick="toggleFaq()">よくある質問 (FAQ) を表示/非表示</button>
         </div>
@@ -393,14 +386,11 @@
                 <dd>A. 各種条件を仮定して計算しており、ゲーム内のキャンペーンや不定期な配布は考慮していません。あくまで目安としてご利用ください。</dd>
             </dl>
         </div>
-        <!-- FAQセクションここまで -->
-
         <div class="form-group">
             <button id="showHistoryButton">計算履歴を表示</button>
         </div>
     </div>
 
-    <!-- 履歴表示画面 -->
     <div id="historyScreen" class="info-box" style="display: none;">
         <h3>計算履歴</h3>
         <ul id="historyList"></ul>
@@ -409,7 +399,6 @@
         </div>
     </div>
 
-    <!-- プライバシーポリシーモーダル -->
     <div id="privacyPolicyModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('privacyPolicyModal')">&times;</span>
@@ -430,7 +419,6 @@
         </div>
     </div>
 
-    <!-- サイトについてモーダル -->
     <div id="aboutModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('aboutModal')">&times;</span>
@@ -451,7 +439,6 @@
         </div>
     </div>
 
-    <!-- お問い合わせモーダル -->
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('contactModal')">&times;</span>
@@ -476,40 +463,38 @@
 
     <script>
         // グローバル変数：最後に計算された予想課金額と目標達成日を保持
+        // 初期値は空文字列と0で、まだ計算が行われていないことを示す
         let lastCalculatedExpense = 0;
         let lastCalculatedTargetDate = '';
 
         /**
          * 結果表示エリア（#result）の内容を更新する関数
          * @param {number} expense - 表示する予想課金額
-         * @param {string} [targetDateStr=null] - 表示する目標達成日文字列。省略された場合は既存の表示を維持。
+         * @param {string} targetDateStr - 表示する目標達成日文字列
+         * @param {boolean} isError - エラー表示かどうか
          */
-        function updateResultDisplay(expense, targetDateStr = null) {
+        function updateResultDisplay(expense, targetDateStr, isError = false) {
             const resultDiv = document.getElementById('result');
-            let existingTargetDateHtml = '';
+            resultDiv.style.display = 'block'; // 結果エリアを表示する
 
-            // 目標達成日文字列が提供された場合はそれを使用
-            if (targetDateStr !== null && targetDateStr !== '') {
-                existingTargetDateHtml = `<p>目標達成予定日: <strong>${targetDateStr}</strong></p>`;
+            if (isError) {
+                resultDiv.innerHTML = `<span class="error">${targetDateStr}</span>`;
             } else {
-                // 提供されなかった場合は、現在の表示から目標達成日を抽出して維持
-                const currentHtml = resultDiv.innerHTML;
-                const dateMatch = currentHtml.match(/目標達成予定日: <strong>(.*?)<\/strong>/);
-                if (dateMatch) {
-                    existingTargetDateHtml = `<p>目標達成予定日: <strong>${dateMatch[1]}</strong></p>`;
+                let displayTargetDateHtml = '';
+                if (targetDateStr) {
+                    displayTargetDateHtml = `<p>目標達成予定日: <strong>${targetDateStr}</strong></p>`;
                 }
+                resultDiv.innerHTML = `
+                    ${displayTargetDateHtml}
+                    <p>予想課金額: <strong>${expense.toLocaleString('ja-JP')}円</strong></p>
+                `;
             }
-
-            // 結果エリアを更新
-            resultDiv.innerHTML = `
-                ${existingTargetDateHtml}
-                <p>予想課金額: <strong>${expense.toLocaleString('ja-JP')}円</strong></p>
-            `;
         }
 
         /**
          * オプションの表示／非表示を切り替える関数
          * また、課金オプションの選択に応じて予想課金額の表示を即座に更新する
+         * ただし、まだ計算が行われていない場合は結果表示は行わない
          */
         function showHideOptions() {
             // キャラクターの種類に応じたオプションの表示／非表示
@@ -541,6 +526,15 @@
             }
 
             // --- 予想課金額の表示を即座に更新するロジック ---
+            // ただし、計算ボタンがまだ押されていない場合は更新しない
+            if (lastCalculatedTargetDate === '') {
+                // まだ計算が行われていない場合は結果エリアを非表示にする
+                document.getElementById('result').style.display = 'none';
+                return;
+            }
+
+            const characterType = document.getElementById('characterType').value;
+            const purchaseRush = document.getElementById('purchaseRush').value;
             const specialTraining = document.getElementById('specialTraining').value;
             const paidTraining = document.getElementById('paidTraining').value; // ここでは非表示でも値を取得
             const challengeBattle = document.getElementById('challengeBattle').value;
@@ -548,6 +542,8 @@
 
             let currentDisplayedExpense = 0; // デフォルトは0円
 
+            // 得ラッシュ30が有効かどうかを判定
+            const isRushPurchasedActive = (characterType === 'limited' && purchaseRush === 'yes');
             // 特訓に課金が有効かどうかを判定
             const isTrainingPaidActive = (specialTraining === 'yes' && paidTraining === 'yes');
             // チャレバトに課金が有効かどうかを判定
@@ -555,13 +551,13 @@
 
             // 課金要素が一つでも有効な場合は、最後に計算された課金額を表示
             // そうでなければ0円を表示
-            if (isTrainingPaidActive || isChallengePaidActive) {
+            if (isRushPurchasedActive || isTrainingPaidActive || isChallengePaidActive) {
                 currentDisplayedExpense = lastCalculatedExpense;
             } else {
                 currentDisplayedExpense = 0;
             }
 
-            // 結果表示エリアの課金額を更新（日付は既存のものを維持または空）
+            // 結果表示エリアの課金額を更新
             updateResultDisplay(currentDisplayedExpense, lastCalculatedTargetDate);
         }
 
@@ -573,6 +569,8 @@
         // 課金オプション自体が変更された際も即座に更新するためイベントリスナーを追加
         document.getElementById('paidTraining').addEventListener('change', showHideOptions);
         document.getElementById('paidChallenge').addEventListener('change', showHideOptions);
+        // 得ラッシュ30の購入有無も課金に影響するためイベントリスナーを追加
+        document.getElementById('purchaseRush').addEventListener('change', showHideOptions);
 
 
         /**
@@ -645,7 +643,7 @@
 
             // 入力チェック
             if (!/^\d+$/.test(targetShardsInput) || parseInt(targetShardsInput) <= 0) {
-                document.getElementById('result').innerHTML = '<span class="error">目標かけら数は正の半角数字で入力してください。</span>';
+                updateResultDisplay(0, '目標かけら数は正の半角数字で入力してください。', true); // エラー表示
                 return;
             }
             const targetShards = parseInt(targetShardsInput);
@@ -680,7 +678,7 @@
 
             // かけら獲得方法が一つも選択されていない場合のエラー
             if (!hasShardSource && dailyShards === 0) {
-                document.getElementById('result').innerHTML = '<span class="error">エラー: かけらを獲得する方法を選択してください。</span>';
+                updateResultDisplay(0, 'エラー: かけらを獲得する方法を選択してください。', true); // エラー表示
                 return;
             }
 
@@ -716,6 +714,12 @@
                 const biWeeks = Math.ceil(totalDays / 14); // 2週間ごとに計算
                 totalExpense += biWeeks * 800; // 特訓課金費用
             }
+            // ★追加: 得ラッシュ30の課金計算
+            if (characterType === 'limited' && purchaseRush === 'yes') {
+                const rushMonths = Math.ceil(totalDays / 30); // 30日ごとに計算
+                totalExpense += rushMonths * 480; // 得ラッシュ30の費用
+            }
+
 
             // 計算結果をグローバル変数に保存
             lastCalculatedExpense = totalExpense;
@@ -803,10 +807,10 @@
         window.onload = function() {
             // 開始日に今日の日付をセット
             document.getElementById('startDate').valueAsDate = new Date();
-            // オプションの表示/非表示を初期化し、同時に予想課金額表示も更新
+            // オプションの表示/非表示を初期化
             showHideOptions();
-            // 初期表示時に結果エリアをクリアし、0円を表示
-            updateResultDisplay(0, '');
+            // 結果エリアは初期状態では非表示のままにする
+            document.getElementById('result').style.display = 'none';
         };
     </script>
 </body>
